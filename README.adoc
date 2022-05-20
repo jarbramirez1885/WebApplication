@@ -1,45 +1,66 @@
+[[s2i-aspnet-example]]
 = .NET Core Sample App for OpenShift
 
-This repository contains a simple MVC .NET Core application that can be deployed on OpenShift.
+This repository contains an example project that can be built using the
+https://github.com/redhat-developer/s2i-dotnetcore[s2i-dotnetcore] builder
+image, which can be used to create reproducible Docker images from your .NET
+Core project's source code. The resulting images can be run using
+https://docker.com[Docker] or deployed to OpenShift.
 
-The example is meant to be built and run with the https://github.com/redhat-developer/s2i-dotnetcore[s2i-dotnetcore] builder
-images. The branches of this repository correspond to versions of the s2i-dotnetcore images.
+For more information about using these images with OpenShift, please see
+the official
+https://docs.openshift.com/enterprise/latest/using_images/s2i_images/dot_net_core.html[OpenShift
+Documentation].
 
-= Deploying the application
+= Building and Running 
 
-== Deploy using the OpenShift client ('oc')
+The sample application can be built and run either within OpenShift or
+standalone by combining the application using s2i tool and running with
+existing image using Docker. The following sections describes these processes.
+
+== OpenShift
+
+The dotnet-example template at https://github.com/redhat-developer/s2i-dotnetcore instantiates the example application.
+The https://github.com/redhat-developer/s2i-dotnetcore/blob/master/README.md[README.md] describes how to use the template.
+
+# Standalone
+
+To build a new .NET Core application using a previously existing s2i-dotnetcore
+builder, `dotnet/dotnet-20-rhel7`, execute the following command:
 
 [source]
 ----
-# Create a new OpenShift project
-$ oc new-project mydemo
-
-# Add the .NET Core application
-$ oc new-app dotnet:6.0-ubi8~https://github.com/redhat-developer/s2i-dotnetcore-ex#dotnet-6.0 --context-dir app
-
-# Make the .NET Core application accessible externally and show the url
-$ oc expose service s2i-dotnetcore-ex
-$ oc get route s2i-dotnetcore-ex
+s2i build --ref=dotnetcore-2.0 --context-dir=app https://github.com/redhat-developer/s2i-dotnetcore-ex dotnet/dotnet-20-rhel7 aspnet-app
 ----
 
-== Deploy using the OpenShift Do ('odo')
+The resulting image can be executed using docker:
 
 [source]
 ----
-# Create a directory
-$ mkdir example
-$ cd example
-
-# Create a 'dotnet60' odo component that uses the 's2i-example' starter (this repo).
-$ odo create dotnet60 --starter s2i-example
-
-# Deploy the application
-$ odo push
+docker run -d -p 8080:8080 aspnet-app
 ----
 
-== Copyright and License
+Once the container is running, it should be accessible using:
 
-Copyright 2016-2021 by Red Hat, Inc.
+[source]
+----
+curl http://127.0.0.1:8080
+----
+
+[[contributing]]
+Contributing
+~~~~~~~~~~~~
+
+Contributions to this project (in the form of bug reports, patches, or pull
+requests) are gratefully accepted by the maintainer.  Please see the
+link:Contributing.adoc[Contributing.adoc] file contained in this package
+for details.
+
+[[copyright-license]]
+Copyright and License
+~~~~~~~~~~~~~~~~~~~~~
+
+Copyright 2016-2017 by Red Hat, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this package except in compliance with the License (see the `LICENSE` file
